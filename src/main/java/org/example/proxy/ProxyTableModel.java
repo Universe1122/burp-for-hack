@@ -57,7 +57,7 @@ public class ProxyTableModel extends AbstractTableModel {
         };
     }
 
-    public synchronized void add(ProxyHttpRequestResponse message) {
+    public synchronized void add(HttpRequestResponse message) {
         HttpRequest request = message.request();
         HttpResponse response = message.response();
 
