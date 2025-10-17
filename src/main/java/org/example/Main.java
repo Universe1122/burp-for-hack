@@ -1,17 +1,50 @@
 package org.example;
 
+import burp.api.montoya.BurpExtension;
+import burp.api.montoya.MontoyaApi;
+import burp.api.montoya.logging.Logging;
+import org.example.proxy.TestProxyHistoryWatcher;
+import org.example.proxy.handler.ProxyPacketListener;
+import org.example.proxy.ProxyTab;
+import org.example.proxy.ProxyTableModel;
+
 //TIP 코드를 <b>실행</b>하려면 <shortcut actionId="Run"/>을(를) 누르거나
 // 에디터 여백에 있는 <icon src="AllIcons.Actions.Execute"/> 아이콘을 클릭하세요.
-public class Main {
-    public static void main(String[] args) {
-        //TIP 캐럿을 강조 표시된 텍스트에 놓고 <shortcut actionId="ShowIntentionActions"/>을(를) 누르면
-        // IntelliJ IDEA이(가) 수정을 제안하는 것을 확인할 수 있습니다.
-        System.out.printf("Hello and welcome!");
+public class Main implements BurpExtension
+{
+    @Override
+    public void initialize(MontoyaApi api)
+    {
+        // set extension name
+        api.extension().setName("Hello world extension");
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP <shortcut actionId="Debug"/>을(를) 눌러 코드 디버그를 시작하세요. 1개의 <icon src="AllIcons.Debugger.Db_set_breakpoint"/> 중단점을 설정해 드렸습니다
-            // 언제든 <shortcut actionId="ToggleLineBreakpoint"/>을(를) 눌러 중단점을 더 추가할 수 있습니다.
-            System.out.println("i = " + i);
-        }
+        Logging logging = api.logging();
+
+//        BasicMenuItem alertEventItem = BasicMenuItem.basicMenuItem("Raise critical alert").withAction(() -> api.logging().raiseCriticalEvent("Alert from extension"));
+//
+//        BasicMenuItem basicMenuItem = MenuItem.basicMenuItem("Unload extension");
+//        MenuItem unloadExtensionItem = basicMenuItem.withAction(() -> api.extension().unload());
+//
+//        Menu menu = Menu.menu("Menu bar").withMenuItems(alertEventItem, unloadExtensionItem);
+//
+//        api.userInterface().menuBar().registerMenu(menu);
+
+        // 패킷 정보 저장 및 출력 포맷 정의
+        ProxyTableModel proxyTableModel = new ProxyTableModel();
+
+        // 새로운 탭 생성
+        ProxyTab proxyTab = new ProxyTab(api, proxyTableModel);
+        api.userInterface().registerSuiteTab("Custom logger", proxyTab.constructLoggerTab());
+
+        // 패킷 정보 저장하는 handler 등록
+        api.proxy().history(new ProxyPacketListener(proxyTableModel));
+
+        TestProxyHistoryWatcher watcher = new TestProxyHistoryWatcher(api, proxyTableModel);
+        watcher.start();
+
+
+//        api.proxy().registerRequestHandler(new CustomProxyRequestHandler(api));
+//        api.userInterface().registerContextMenuItemsProvider(new ProxyInterfaceContextMenu(api));
+//        api.extension().registerUnloadingHandler(new ProxyInterfaceMenu(api));
     }
 }
