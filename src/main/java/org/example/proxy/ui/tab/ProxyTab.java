@@ -1,10 +1,10 @@
-package org.example.proxy;
+package org.example.proxy.ui.tab;
 
 import burp.api.montoya.MontoyaApi;
-import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.ui.UserInterface;
 import burp.api.montoya.ui.editor.HttpRequestEditor;
 import burp.api.montoya.ui.editor.HttpResponseEditor;
+import org.example.proxy.ui.menu.ProxyTableContextMenu;
 
 import javax.swing.*;
 import javax.swing.table.TableRowSorter;

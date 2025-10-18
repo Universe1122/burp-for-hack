@@ -1,16 +1,12 @@
-package org.example.proxy;
+package org.example.proxy.ui.tab;
 
 import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
-import burp.api.montoya.proxy.ProxyHttpRequestResponse;
+import org.example.proxy.ProxyPacketEntry;
 
 import javax.swing.table.AbstractTableModel;
-import java.net.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.regex.*;
 
 
 public class ProxyTableModel extends AbstractTableModel {

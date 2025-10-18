@@ -1,4 +1,4 @@
-package org.example.proxy;
+package org.example.proxy.ui.tab;
 
 import javax.swing.*;
 import java.awt.*;

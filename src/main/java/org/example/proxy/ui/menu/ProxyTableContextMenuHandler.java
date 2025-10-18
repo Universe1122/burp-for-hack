@@ -1,11 +1,10 @@
-package org.example.proxy;
+package org.example.proxy.ui.menu;
 
 import burp.api.montoya.MontoyaApi;
-import burp.api.montoya.core.Annotations;
 import burp.api.montoya.core.HighlightColor;
 import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.requests.HttpRequest;
-import burp.api.montoya.core.HighlightColor.*;
+import org.example.proxy.ui.tab.ProxyTableModel;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;

@@ -1,10 +1,10 @@
-package org.example.proxy;
+package org.example.proxy.ui.menu;
 
 import burp.api.montoya.MontoyaApi;
 import burp.api.montoya.core.HighlightColor;
+import org.example.proxy.ui.tab.ProxyTableModel;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -14,7 +14,7 @@ import java.awt.event.MouseEvent;
 public class ProxyTableContextMenu {
     private final MontoyaApi api;
 
-    ProxyTableContextMenu(MontoyaApi api) {
+    public ProxyTableContextMenu(MontoyaApi api) {
         this.api = api;
     }
 
