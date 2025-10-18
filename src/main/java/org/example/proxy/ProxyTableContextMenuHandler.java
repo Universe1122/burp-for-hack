@@ -12,7 +12,6 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.util.Objects;
 
-import static burp.api.montoya.core.HighlightColor.GREEN;
 import static burp.api.montoya.core.HighlightColor.NONE;
 
 public class ProxyTableContextMenuHandler {

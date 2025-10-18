@@ -39,7 +39,7 @@ public class ProxyTab {
     }
 
     // Proxy History UI 구성
-    private JPanel createProxyHistoryPanel() {
+    private JPanel createProxyHistoryPanel(String filterListenerInterface) {
         JPanel panel = new JPanel(new BorderLayout());
         ProxyTableContextMenu proxyTableContextMenu = new ProxyTableContextMenu(this.api);
         JTable table = new JTable(this.globalTableModel);
@@ -59,6 +59,15 @@ public class ProxyTab {
         sorter.setComparator(0, Comparator.comparingInt(o -> (Integer) o)); // Index 열
         sorter.setComparator(4, Comparator.comparingInt(o -> parseIntSafe(o))); // Status
         sorter.setComparator(5, Comparator.comparingInt(o -> parseIntSafe(o))); // Length
+        sorter.setRowFilter(new RowFilter() {
+            // 이용자가 지정한 listener interface에 따라 보여줄 패킷 필터링
+            @Override
+            public boolean include(Entry entry) {
+                int listenerColIndex = ProxyTableColumns.LISTENER_INTERFACE.ordinal();
+                String listener = (String) entry.getValue(listenerColIndex);
+                return listener.equals(filterListenerInterface);
+            }
+        });
 
         JScrollPane scrollPane = new JScrollPane(table);
 
@@ -104,21 +113,28 @@ public class ProxyTab {
 
         JButton addTabButton = new JButton("새로운 탭 추가");
         JTextField tabNameField = new JTextField("새 탭 이름 입력", 15);
+        JTextField filterListenerInterfaceField =  new JTextField("리스너 인터페이스 입력", 15);
 
         JPanel topPanel = new JPanel();
         topPanel.add(tabNameField);
+        topPanel.add(filterListenerInterfaceField);
         topPanel.add(addTabButton);
 
         settingsPanel.add(topPanel, BorderLayout.NORTH);
 
         addTabButton.addActionListener(e -> {
             String newTabName = tabNameField.getText().trim();
+            String filterListenerInterface = filterListenerInterfaceField.getText().trim();
             if (newTabName.isEmpty()) {
                 JOptionPane.showMessageDialog(null, "탭 이름을 입력하세요.");
                 return;
             }
+            if (filterListenerInterface.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "리스너 인터페이스를 입력하세요. ex: 127.0.0.1:8080");
+                return;
+            }
 
-            JPanel proxyHistoryPanel = createProxyHistoryPanel();
+            JPanel proxyHistoryPanel = createProxyHistoryPanel(filterListenerInterface);
 
             // 사용자 정의 하위 탭 추가
             upperTabs.addTab(newTabName, proxyHistoryPanel);

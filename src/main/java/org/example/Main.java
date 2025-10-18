@@ -5,7 +5,7 @@ import burp.api.montoya.MontoyaApi;
 import burp.api.montoya.logging.Logging;
 import org.example.proxy.ProxyTab;
 import org.example.proxy.ProxyTableModel;
-import org.example.proxy.handler.MyHttpHandler;
+import org.example.proxy.handler.ProxyResponseHandler;
 
 //TIP 코드를 <b>실행</b>하려면 <shortcut actionId="Run"/>을(를) 누르거나
 // 에디터 여백에 있는 <icon src="AllIcons.Actions.Execute"/> 아이콘을 클릭하세요.
@@ -34,7 +34,7 @@ public class Main implements BurpExtension
         // 새로운 탭 생성
         ProxyTab proxyTab = new ProxyTab(api, proxyTableModel);
         api.userInterface().registerSuiteTab("Custom logger", proxyTab.constructLoggerTab());
-        api.http().registerHttpHandler(new MyHttpHandler(proxyTableModel));
+        api.proxy().registerResponseHandler(new ProxyResponseHandler(api, proxyTableModel));
         // 패킷 정보 저장하는 handler 등록
 //        new ProxyPacketListener(proxyTableModel, api);
 //        api.proxy().history(new ProxyPacketListener(proxyTableModel, api));
