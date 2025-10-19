@@ -4,6 +4,7 @@ import burp.api.montoya.MontoyaApi;
 import burp.api.montoya.core.HighlightColor;
 import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.requests.HttpRequest;
+import org.example.proxy.ProxyPacketEntry;
 import org.example.proxy.ui.tab.ProxyTableModel;
 
 import java.awt.*;
@@ -32,8 +33,8 @@ public class ProxyTableContextMenuHandler {
     }
 
     public void setHighlight(ProxyTableModel model, int rowIndex, HighlightColor color) {
-        HttpRequestResponse message = model.get(rowIndex);
-        message.annotations().setHighlightColor(Objects.requireNonNullElse(color, NONE));
+        ProxyPacketEntry message = model.get(rowIndex);
+        message.getHttpRequestResponse().annotations().setHighlightColor(Objects.requireNonNullElse(color, NONE));
 
         // 색깔 변경 갱신
         model.fireTableRowsUpdated(rowIndex, rowIndex); // JTable 갱신

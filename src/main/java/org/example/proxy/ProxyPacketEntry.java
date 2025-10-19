@@ -102,4 +102,12 @@ public class ProxyPacketEntry {
     public String getListenerInterface() {
         return listenerInterface;
     }
+
+    public HttpRequest getHttpRequest() {
+        return httpRequestResponse.request();
+    }
+
+    public HttpResponse getHttpResponse() {
+        return httpRequestResponse.response();
+    }
 }

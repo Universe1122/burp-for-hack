@@ -58,14 +58,14 @@ public class ProxyTableContextMenu {
         copyUrl.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row >= 0) {
-                handler.copyToClipboard(model.get(row).request().url());
+                handler.copyToClipboard(model.get(row).getHttpRequest().url());
             }
         });
 
         sendToRepeater.addActionListener(e -> {
            int row = table.getSelectedRow();
            if (row >= 0) {
-               handler.sendToRepeater(model.get(row).request());
+               handler.sendToRepeater(model.get(row).getHttpRequest());
            }
         });
 
@@ -109,7 +109,7 @@ public class ProxyTableContextMenu {
                 if (isShortcutPressed) {
                     int row = table.getSelectedRow();
                     if (row >= 0) {
-                        handler.sendToRepeater(model.get(row).request());
+                        handler.sendToRepeater(model.get(row).getHttpRequest());
                     }
                 }
             }

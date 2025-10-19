@@ -4,6 +4,8 @@ import burp.api.montoya.MontoyaApi;
 import burp.api.montoya.ui.UserInterface;
 import burp.api.montoya.ui.editor.HttpRequestEditor;
 import burp.api.montoya.ui.editor.HttpResponseEditor;
+import org.example.proxy.ProxyPacketEntry;
+import org.example.proxy.ui.menu.ProxyEntryContextMenu;
 import org.example.proxy.ui.menu.ProxyTableContextMenu;
 
 import javax.swing.*;
@@ -41,7 +43,7 @@ public class ProxyTab {
     // Proxy History UI 구성
     private JPanel createProxyHistoryPanel(String filterListenerInterface) {
         JPanel panel = new JPanel(new BorderLayout());
-        ProxyTableContextMenu proxyTableContextMenu = new ProxyTableContextMenu(this.api);
+//        ProxyTableContextMenu proxyTableContextMenu = new ProxyTableContextMenu(this.api);
         JTable table = new JTable(this.globalTableModel);
 
         // 각 컬럼에 대해 가로폭 지정하기
@@ -51,7 +53,7 @@ public class ProxyTab {
             table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
         }
 
-        proxyTableContextMenu.attach(table, this.globalTableModel);
+//        proxyTableContextMenu.attach(table, this.globalTableModel);
 
         TableRowSorter<ProxyTableModel> sorter = new TableRowSorter<>(this.globalTableModel);
         table.setRowSorter(sorter);
@@ -97,10 +99,31 @@ public class ProxyTab {
                 if (selectedRow >= 0) {
                     var message = globalTableModel.get(selectedRow);
                     if (message != null) {
-                        requestViewer.setRequest(message.request());
-                        responseViewer.setResponse(message.response());
+                        requestViewer.setRequest(message.getHttpRequest());
+                        responseViewer.setResponse(message.getHttpResponse());
                     }
                 }
+            }
+        });
+
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    int row = table.rowAtPoint(e.getPoint());
+                    if (row >= 0 && row < table.getRowCount()) {
+                        table.setRowSelectionInterval(row, row);
+
+                        ProxyPacketEntry entry = globalTableModel.get(row);
+
+                        ProxyEntryContextMenu.showMenu(api, entry.getHttpRequestResponse(), e.getComponent(), e.getX(), e.getY());
+                    }
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger()) mouseReleased(e);
             }
         });
 

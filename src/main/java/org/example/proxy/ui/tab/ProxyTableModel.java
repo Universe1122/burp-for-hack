@@ -60,7 +60,7 @@ public class ProxyTableModel extends AbstractTableModel {
         fireTableRowsInserted(log.size() - 1, log.size() - 1);
     }
 
-    public synchronized HttpRequestResponse get(int rowIndex) {
-        return (HttpRequestResponse) log.get(rowIndex);
+    public synchronized ProxyPacketEntry get(int rowIndex) {
+        return (ProxyPacketEntry) log.get(rowIndex);
     }
 }
