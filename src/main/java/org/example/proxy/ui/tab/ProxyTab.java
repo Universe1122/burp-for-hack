@@ -116,7 +116,7 @@ public class ProxyTab {
 
                         ProxyPacketEntry entry = globalTableModel.get(row);
 
-                        ProxyEntryContextMenu.showMenu(api, entry.getHttpRequestResponse(), e.getComponent(), e.getX(), e.getY());
+                        ProxyEntryContextMenu.showMenu(api, entry, e.getComponent(), e.getX(), e.getY());
                     }
                 }
             }
@@ -136,7 +136,7 @@ public class ProxyTab {
 
         JButton addTabButton = new JButton("새로운 탭 추가");
         JTextField tabNameField = new JTextField("새 탭 이름 입력", 15);
-        JTextField filterListenerInterfaceField =  new JTextField("리스너 인터페이스 입력", 15);
+        JTextField filterListenerInterfaceField =  new JTextField("127.0.0.1:8080", 15);
 
         JPanel topPanel = new JPanel();
         topPanel.add(tabNameField);

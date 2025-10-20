@@ -3,6 +3,7 @@ package org.example.proxy;
 import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
+import burp.api.montoya.proxy.http.InterceptedResponse;
 
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -14,21 +15,27 @@ import java.util.regex.Pattern;
 
 public class ProxyPacketEntry {
     public final HttpRequestResponse httpRequestResponse;
+    public final HttpRequest httpRequest;
+    public final HttpResponse httpResponse;
     public final String listenerInterface;
     public final String host;
     public final String extension;
     public final String title;
     public final String ip;
     public final String time;
+    public final InterceptedResponse interceptedResponse;
 
-    public ProxyPacketEntry(HttpRequestResponse httpRequestResponse, String listenerInterface) {
+    public ProxyPacketEntry(HttpRequestResponse httpRequestResponse, String listenerInterface, InterceptedResponse interceptedResponse) {
         this.httpRequestResponse = httpRequestResponse;
+        this.httpRequest = httpRequestResponse.request();
+        this.httpResponse = httpRequestResponse.response();
         this.listenerInterface = listenerInterface;
         this.host = this.setHost(httpRequestResponse.request());
         this.extension = this.setExtension(httpRequestResponse.request());
         this.title = this.setHtmlTitle(httpRequestResponse.response());
         this.ip = this.setIp(this.host);
         this.time = this.setTime();
+        this.interceptedResponse = interceptedResponse;
     }
 
     public String setHost(HttpRequest httpRequest) {
@@ -104,10 +111,14 @@ public class ProxyPacketEntry {
     }
 
     public HttpRequest getHttpRequest() {
-        return httpRequestResponse.request();
+        return this.httpRequest;
     }
 
     public HttpResponse getHttpResponse() {
-        return httpRequestResponse.response();
+        return this.httpResponse;
+    }
+
+    public InterceptedResponse getInterceptedResponse() {
+        return interceptedResponse;
     }
 }

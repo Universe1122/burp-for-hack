@@ -3,6 +3,7 @@ package org.example.proxy.ui.menu;
 import burp.api.montoya.MontoyaApi;
 import burp.api.montoya.core.HighlightColor;
 import burp.api.montoya.http.message.HttpRequestResponse;
+import org.example.proxy.ProxyPacketEntry;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,9 +13,9 @@ import java.awt.event.ActionListener;
 public class ProxyEntryContextMenu extends JPopupMenu {
 
     private final MontoyaApi api;
-    private final HttpRequestResponse message;
+    private final ProxyPacketEntry message;
 
-    public ProxyEntryContextMenu(MontoyaApi api, HttpRequestResponse message) {
+    public ProxyEntryContextMenu(MontoyaApi api, ProxyPacketEntry message) {
         this.api = api;
         this.message = message;
 
@@ -29,11 +30,11 @@ public class ProxyEntryContextMenu extends JPopupMenu {
     private JMenuItem createSendToRepeaterItem() {
         JMenuItem item = new JMenuItem("Send to Repeater");
         item.addActionListener(e -> {
-            String host = message.request().httpService().host();
-            int port = message.request().httpService().port();
-            boolean useHttps = message.request().httpService().secure();
-            api.repeater().sendToRepeater(message.request());
-            api.logging().logToOutput("Sent to Repeater: " + message.request().url());
+            String host = message.getHttpRequest().httpService().host();
+            int port = message.getHttpRequest().httpService().port();
+            boolean useHttps = message.getHttpRequest().httpService().secure();
+            api.repeater().sendToRepeater(message.getHttpRequest());
+            api.logging().logToOutput("Sent to Repeater: " + message.getHttpRequest().url());
         });
         return item;
     }
@@ -42,7 +43,7 @@ public class ProxyEntryContextMenu extends JPopupMenu {
         JMenuItem item = new JMenuItem("Send to Comparer");
         item.addActionListener(e -> {
 //            api.comparer().sendToComparer(message.request().toString());
-            api.logging().logToOutput("Sent to Comparer: " + message.request().url());
+            api.logging().logToOutput("Sent to Comparer: " + message.getHttpRequest().url());
         });
         return item;
     }
@@ -50,7 +51,7 @@ public class ProxyEntryContextMenu extends JPopupMenu {
     private JMenuItem createCopyUrlItem() {
         JMenuItem item = new JMenuItem("Copy URL");
         item.addActionListener(e -> {
-            String url = message.request().url();
+            String url = message.getHttpRequest().url();
             Toolkit.getDefaultToolkit().getSystemClipboard()
                     .setContents(new java.awt.datatransfer.StringSelection(url), null);
             api.logging().logToOutput("Copied URL: " + url);
@@ -64,7 +65,7 @@ public class ProxyEntryContextMenu extends JPopupMenu {
         for (HighlightColor color : HighlightColor.values()) {
             JMenuItem colorItem = new JMenuItem(color.name());
             colorItem.addActionListener(e -> {
-                message.annotations().setHighlightColor(color);
+                message.getInterceptedResponse().annotations().setHighlightColor(color);
 
             });
             highlightMenu.add(colorItem);
@@ -74,7 +75,7 @@ public class ProxyEntryContextMenu extends JPopupMenu {
     }
 
     // 메뉴 표시 함수
-    public static void showMenu(MontoyaApi api, HttpRequestResponse message, java.awt.Component component, int x, int y) {
+    public static void showMenu(MontoyaApi api, ProxyPacketEntry message, java.awt.Component component, int x, int y) {
         SwingUtilities.invokeLater(() -> {
             ProxyEntryContextMenu menu = new ProxyEntryContextMenu(api, message);
             menu.show(component, x, y);

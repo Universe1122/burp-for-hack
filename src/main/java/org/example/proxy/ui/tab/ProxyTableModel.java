@@ -3,6 +3,7 @@ package org.example.proxy.ui.tab;
 import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
+import burp.api.montoya.proxy.http.InterceptedResponse;
 import org.example.proxy.ProxyPacketEntry;
 
 import javax.swing.table.AbstractTableModel;
@@ -55,8 +56,8 @@ public class ProxyTableModel extends AbstractTableModel {
         };
     }
 
-    public synchronized void add(HttpRequestResponse message, String listenerInterface) {
-        log.add(new ProxyPacketEntry(message, listenerInterface));
+    public synchronized void add(HttpRequestResponse message, String listenerInterface, InterceptedResponse interceptedResponse) {
+        log.add(new ProxyPacketEntry(message, listenerInterface, interceptedResponse));
         fireTableRowsInserted(log.size() - 1, log.size() - 1);
     }
 

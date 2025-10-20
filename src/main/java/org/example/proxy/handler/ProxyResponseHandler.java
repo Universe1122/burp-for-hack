@@ -29,7 +29,8 @@ public class ProxyResponseHandler implements burp.api.montoya.proxy.http.ProxyRe
                 HttpRequestResponse.httpRequestResponse(
                     interceptedResponse.initiatingRequest(), (HttpResponse) interceptedResponse
                 ),
-                interceptedResponse.listenerInterface()
+                interceptedResponse.listenerInterface(),
+                interceptedResponse
         );
         return ProxyResponseToBeSentAction.continueWith(interceptedResponse);
     }
