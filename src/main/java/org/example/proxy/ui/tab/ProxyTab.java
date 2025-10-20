@@ -48,6 +48,9 @@ public class ProxyTab {
 //        ProxyTableContextMenu proxyTableContextMenu = new ProxyTableContextMenu(this.api);
         JTable table = new JTable(this.globalTableModel);
 
+        // 여러개의 컬럼을 선택할 수 있도록 수정
+        table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+
         // 각 컬럼에 대해 가로폭 지정하기
         int[] columnWidths = {20, 75, 30, 200, 60, 80, 100, 50, 200, 120, 150};
 
@@ -93,12 +96,13 @@ public class ProxyTab {
         verticalSplit.setBottomComponent(horizontalSplit);
         panel.add(verticalSplit, BorderLayout.CENTER);
 
-        // 테이블 클릭 시 Request/Response 갱신
-        table.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
+        // 테이블 선택 시 Request/Response 갱신
+        table.getSelectionModel().addListSelectionListener(e -> {
+            // 마우스로 클릭하거나 방향키로 이동할 때도 모두 트리거됨
+            if (!e.getValueIsAdjusting()) {
                 int selectedRow = table.getSelectedRow();
                 if (selectedRow >= 0) {
+                    selectedRow = table.convertRowIndexToModel(selectedRow);
                     var message = globalTableModel.get(selectedRow);
                     if (message != null) {
                         requestViewer.setRequest(message.getHttpRequest());
