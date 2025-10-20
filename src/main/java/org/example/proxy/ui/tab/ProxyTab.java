@@ -1,6 +1,7 @@
 package org.example.proxy.ui.tab;
 
 import burp.api.montoya.MontoyaApi;
+import burp.api.montoya.core.HighlightColor;
 import burp.api.montoya.ui.UserInterface;
 import burp.api.montoya.ui.editor.HttpRequestEditor;
 import burp.api.montoya.ui.editor.HttpResponseEditor;
@@ -9,6 +10,7 @@ import org.example.proxy.ui.menu.ProxyEntryContextMenu;
 import org.example.proxy.ui.menu.ProxyTableContextMenu;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -127,6 +129,31 @@ public class ProxyTab {
             }
         });
 
+        // 패킷 하이라이트
+        table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(
+                    JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                ProxyTableModel model = (ProxyTableModel) table.getModel();
+                ProxyPacketEntry entry = model.get(row);
+                HighlightColor color = entry.getInterceptedResponse().annotations().highlightColor();
+
+                if (!isSelected) {
+                    if (color != null && color != HighlightColor.NONE) {
+                        c.setBackground(highlightColorToAwt(color));
+                    } else {
+                        c.setBackground(null);
+                    }
+                }
+
+                return c;
+            }
+        });
+
+
         return panel;
     }
 
@@ -176,5 +203,18 @@ public class ProxyTab {
         } catch (Exception e) {
             return -1;
         }
+    }
+
+    private Color highlightColorToAwt(HighlightColor color) {
+        return switch (color) {
+            case RED -> Color.RED;
+            case ORANGE -> Color.ORANGE;
+            case YELLOW -> Color.YELLOW;
+            case GREEN -> Color.GREEN;
+            case CYAN, BLUE -> Color.CYAN;
+            case PINK, MAGENTA -> Color.PINK;
+            case GRAY -> Color.LIGHT_GRAY;
+            default -> Color.WHITE;
+        };
     }
 }

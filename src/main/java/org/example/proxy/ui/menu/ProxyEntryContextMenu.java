@@ -18,7 +18,6 @@ public class ProxyEntryContextMenu extends JPopupMenu {
     public ProxyEntryContextMenu(MontoyaApi api, ProxyPacketEntry message) {
         this.api = api;
         this.message = message;
-
         // 메뉴 아이템 추가
         add(createSendToRepeaterItem());
         add(createSendToComparerItem());
@@ -66,7 +65,6 @@ public class ProxyEntryContextMenu extends JPopupMenu {
             JMenuItem colorItem = new JMenuItem(color.name());
             colorItem.addActionListener(e -> {
                 message.getInterceptedResponse().annotations().setHighlightColor(color);
-
             });
             highlightMenu.add(colorItem);
         }
