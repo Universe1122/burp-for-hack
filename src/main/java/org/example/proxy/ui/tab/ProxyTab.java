@@ -7,12 +7,13 @@ import burp.api.montoya.ui.editor.HttpRequestEditor;
 import burp.api.montoya.ui.editor.HttpResponseEditor;
 import org.example.proxy.ProxyPacketEntry;
 import org.example.proxy.ui.menu.ProxyEntryContextMenu;
-import org.example.proxy.ui.menu.ProxyTableContextMenu;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Comparator;
@@ -57,8 +58,6 @@ public class ProxyTab {
         for (int i = 0; i < columnWidths.length; i++) {
             table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
         }
-
-//        proxyTableContextMenu.attach(table, this.globalTableModel);
 
         TableRowSorter<ProxyTableModel> sorter = new TableRowSorter<>(this.globalTableModel);
         table.setRowSorter(sorter);
@@ -157,6 +156,28 @@ public class ProxyTab {
             }
         });
 
+        // send to repeater 단축키 이벤트 핸들러
+        table.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                boolean isMac = System.getProperty("os.name").toLowerCase().contains("mac");
+
+                boolean isShortcutPressed;
+                if (isMac) {
+                    isShortcutPressed = e.isMetaDown() && e.getKeyCode() == KeyEvent.VK_R; // ⌘ + R
+                } else {
+                    isShortcutPressed = e.isControlDown() && e.getKeyCode() == KeyEvent.VK_R; // Ctrl + R
+                }
+
+                if (isShortcutPressed) {
+                    int row = table.getSelectedRow();
+                    if (row >= 0) {
+                        row = table.convertRowIndexToModel(row);
+                        api.repeater().sendToRepeater(globalTableModel.get(row).getHttpRequest());
+                    }
+                }
+            }
+        });
 
         return panel;
     }

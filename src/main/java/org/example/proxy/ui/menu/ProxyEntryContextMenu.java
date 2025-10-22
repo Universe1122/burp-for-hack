@@ -2,13 +2,10 @@ package org.example.proxy.ui.menu;
 
 import burp.api.montoya.MontoyaApi;
 import burp.api.montoya.core.HighlightColor;
-import burp.api.montoya.http.message.HttpRequestResponse;
 import org.example.proxy.ProxyPacketEntry;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class ProxyEntryContextMenu extends JPopupMenu {
 
@@ -20,7 +17,6 @@ public class ProxyEntryContextMenu extends JPopupMenu {
         this.message = message;
         // 메뉴 아이템 추가
         add(createSendToRepeaterItem());
-        add(createSendToComparerItem());
         add(createCopyUrlItem());
         addSeparator();
         add(createHighlightMenu());
@@ -34,15 +30,6 @@ public class ProxyEntryContextMenu extends JPopupMenu {
             boolean useHttps = message.getHttpRequest().httpService().secure();
             api.repeater().sendToRepeater(message.getHttpRequest());
             api.logging().logToOutput("Sent to Repeater: " + message.getHttpRequest().url());
-        });
-        return item;
-    }
-
-    private JMenuItem createSendToComparerItem() {
-        JMenuItem item = new JMenuItem("Send to Comparer");
-        item.addActionListener(e -> {
-//            api.comparer().sendToComparer(message.request().toString());
-            api.logging().logToOutput("Sent to Comparer: " + message.getHttpRequest().url());
         });
         return item;
     }
