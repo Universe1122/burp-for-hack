@@ -12,10 +12,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.Comparator;
 
 import static burp.api.montoya.ui.editor.EditorOptions.READ_ONLY;
@@ -61,12 +58,13 @@ public class ProxyTab {
 
         TableRowSorter<ProxyTableModel> sorter = new TableRowSorter<>(this.globalTableModel);
         table.setRowSorter(sorter);
-
+        sorter.setMaxSortKeys(1);
+        sorter.setSortsOnUpdates(true);
         sorter.setComparator(0, Comparator.comparingInt(o -> (Integer) o)); // Index 열
         sorter.setComparator(4, Comparator.comparingInt(o -> parseIntSafe(o))); // Status
         sorter.setComparator(5, Comparator.comparingInt(o -> parseIntSafe(o))); // Length
+        // 이용자가 지정한 listener interface에 따라 보여줄 패킷 필터링
         sorter.setRowFilter(new RowFilter() {
-            // 이용자가 지정한 listener interface에 따라 보여줄 패킷 필터링
             @Override
             public boolean include(Entry entry) {
                 int listenerColIndex = ProxyTableColumns.LISTENER_INTERFACE.ordinal();
@@ -99,15 +97,19 @@ public class ProxyTab {
         table.getSelectionModel().addListSelectionListener(e -> {
             // 마우스로 클릭하거나 방향키로 이동할 때도 모두 트리거됨
             if (!e.getValueIsAdjusting()) {
-                int selectedRow = table.getSelectedRow();
-                if (selectedRow >= 0) {
+                SwingUtilities.invokeLater(() -> {
+                    int selectedRow = table.getSelectedRow();
+                    if (selectedRow < 0) return;
+
                     selectedRow = table.convertRowIndexToModel(selectedRow);
-                    var message = globalTableModel.get(selectedRow);
-                    if (message != null) {
-                        requestViewer.setRequest(message.getHttpRequest());
-                        responseViewer.setResponse(message.getHttpResponse());
-                    }
-                }
+                    if (selectedRow < 0) return;
+
+                    ProxyPacketEntry proxyPacketEntry =  globalTableModel.get(selectedRow);
+                    if  (proxyPacketEntry == null) return;
+
+                    requestViewer.setRequest(proxyPacketEntry.getHttpRequest());
+                    responseViewer.setResponse(proxyPacketEntry.getHttpResponse());
+                });
             }
         });
 
@@ -169,13 +171,13 @@ public class ProxyTab {
                     isShortcutPressed = e.isControlDown() && e.getKeyCode() == KeyEvent.VK_R; // Ctrl + R
                 }
 
-                if (isShortcutPressed) {
-                    int row = table.getSelectedRow();
-                    if (row >= 0) {
-                        row = table.convertRowIndexToModel(row);
-                        api.repeater().sendToRepeater(globalTableModel.get(row).getHttpRequest());
-                    }
-                }
+                if (!isShortcutPressed) return;
+
+                int row = table.getSelectedRow();
+                if (row < 0)  return;
+
+                row = table.convertRowIndexToModel(row);
+                api.repeater().sendToRepeater(globalTableModel.get(row).getHttpRequest());
             }
         });
 
