@@ -1,13 +1,16 @@
 package org.example.proxy;
 
 import burp.api.montoya.http.message.HttpRequestResponse;
+import burp.api.montoya.http.message.MimeType;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.proxy.http.InterceptedResponse;
+import org.example.MontoyaApiProvider;
 
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.regex.Matcher;
@@ -24,58 +27,76 @@ public class ProxyPacketEntry {
     public final String ip;
     public final String time;
     public final InterceptedResponse interceptedResponse;
+    public final String mimeType;
+    public final int MAX_BODY_SIZE = 1024 * 1024 * 5; // 5MB로 제한
 
     public ProxyPacketEntry(HttpRequestResponse httpRequestResponse, String listenerInterface, InterceptedResponse interceptedResponse) {
         this.httpRequestResponse = httpRequestResponse;
         this.httpRequest = httpRequestResponse.request();
         this.httpResponse = httpRequestResponse.response();
         this.listenerInterface = listenerInterface;
-        this.host = this.setHost(httpRequestResponse.request());
-        this.extension = this.setExtension(httpRequestResponse.request());
-        this.title = this.setHtmlTitle(httpRequestResponse.response());
-        this.ip = this.setIp(this.host);
+        this.host = this.setHost();
+        this.extension = this.setExtension();
+        this.ip = this.setIp();
         this.time = this.setTime();
         this.interceptedResponse = interceptedResponse;
+        this.mimeType = this.setMimeType();
+        this.title = this.setHtmlTitle();
     }
 
-    public String setHost(HttpRequest httpRequest) {
+    public String setHost() {
         try {
-            return new URL(httpRequest.url()).getHost();
-        } catch (MalformedURLException e) {
-            return "???";
-        }
-    }
-
-    public String setExtension(HttpRequest httpRequest) {
-        String path = httpRequest.path();
-        int lastSlash = path.lastIndexOf('/');
-        int lastDot = path.lastIndexOf('.');
-        if (lastDot > lastSlash) {
-            return path.substring(lastDot + 1);
-        }
-
+            return new URL(this.httpRequest.url()).getHost();
+        } catch (MalformedURLException e) {}
         return "";
     }
 
-    public String setHtmlTitle(HttpResponse httpResponse) {
-        if (httpResponse != null && httpResponse.body() != null) {
-            String body = httpResponse.body().toString();
-            Matcher matcher = Pattern.compile("(?i)<title>(.*?)</title>").matcher(body);
-            if (matcher.find()) {
-                return matcher.group(1).trim();
+    public String setExtension() {
+        try{
+            URL url = new URL(this.httpRequest.url());
+            String tmpPath = url.getPath().replaceAll("\\\\", "/");
+            tmpPath = tmpPath.substring(tmpPath.lastIndexOf("/"));
+            int position = tmpPath.lastIndexOf('.');
+            if (position >= 0) {
+                return tmpPath.substring(position + 1);
             }
+        } catch (MalformedURLException e) {}
+
+        return "";
+    }
+
+    public String setHtmlTitle() {
+        if (this.httpResponse == null || this.httpResponse.body() == null) return "";
+        if (this.httpResponse.body().length() > MAX_BODY_SIZE) return "";
+        if (this.getMimeType() != MimeType.HTML.toString()) return "";
+
+        String body = new String(this.httpResponse.body().getBytes(), StandardCharsets.UTF_8);
+        Matcher matcher = Pattern.compile("<title>(.+?)</title>", Pattern.CASE_INSENSITIVE).matcher(body);
+        if (matcher.find()) {
+            String result = matcher.group(1).trim();
+            MontoyaApiProvider.get().logging().logToOutput(result);
+            return result;
         }
 
         return "";
     }
 
-    public String setIp(String host) {
+    public String setIp() {
         try {
-            InetAddress inet = InetAddress.getByName(host);
+            InetAddress inet = InetAddress.getByName(this.host);
             return inet.getHostAddress();
         } catch (Exception e) {
             return "???";
         }
+    }
+
+    public String setMimeType() {
+        MimeType mimeType = this.getHttpResponse().inferredMimeType();
+
+        return switch (mimeType) {
+            case NONE, UNRECOGNIZED, AMBIGUOUS, IMAGE_UNKNOWN, LEGACY_SER_AMF -> "";
+            default -> mimeType.toString();
+        };
     }
 
     public String setTime() {
@@ -120,5 +141,9 @@ public class ProxyPacketEntry {
 
     public InterceptedResponse getInterceptedResponse() {
         return interceptedResponse;
+    }
+
+    public String getMimeType() {
+        return mimeType;
     }
 }
