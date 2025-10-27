@@ -6,10 +6,10 @@ public enum ProxyTableColumns {
     METHOD("Method"),
     PATH("Path"),
     STATUS("Status"),
-    LENGTH("Length"),
     MIME("MIME"),
     EXT("Ext"),
     TITLE("Title"),
+    LENGTH("Length"),
     IP("IP"),
     TIME("Time"),
     LISTENER_INTERFACE("Listener Interface");

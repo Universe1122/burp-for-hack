@@ -36,8 +36,8 @@ public class ProxyTableModel extends AbstractTableModel {
     @Override
     public synchronized Object getValueAt(int rowIndex, int columnIndex) {
         ProxyPacketEntry entry = log.get(rowIndex);
-        HttpRequest request = entry.getHttpRequestResponse().request();
-        HttpResponse response = entry.getHttpRequestResponse().response();
+        HttpRequest request = entry.getHttpRequest();
+        HttpResponse response = entry.getHttpResponse();
 
         return switch (columnIndex) {
             case 0 -> rowIndex+1;
@@ -45,10 +45,10 @@ public class ProxyTableModel extends AbstractTableModel {
             case 2 -> request.method();
             case 3 -> request.path();
             case 4 -> (response != null) ? response.statusCode() : "";
-            case 5 -> (response != null) ? response.body().length() : "";
-            case 6 -> (response != null) ? response.mimeType() : "";
-            case 7 -> entry.getExtension();
-            case 8 -> entry.getTitle();
+            case 5 -> (response != null) ? entry.getMimeType() : "";
+            case 6 -> entry.getExtension();
+            case 7 -> entry.getTitle();
+            case 8 -> (response != null) ? response.body().length() : "";
             case 9 -> entry.getIp();
             case 10 -> entry.getTime();
             case 11 -> entry.getListenerInterface();

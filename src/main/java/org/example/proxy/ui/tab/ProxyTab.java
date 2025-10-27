@@ -50,7 +50,7 @@ public class ProxyTab {
         table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
         // 각 컬럼에 대해 가로폭 지정하기
-        int[] columnWidths = {20, 75, 30, 200, 60, 80, 100, 50, 200, 120, 150};
+        int[] columnWidths = {10, 100, 20, 450, 30, 60, 50, 60, 60, 100, 150};
 
         for (int i = 0; i < columnWidths.length; i++) {
             table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
