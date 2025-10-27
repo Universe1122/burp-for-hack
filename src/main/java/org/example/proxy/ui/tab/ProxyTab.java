@@ -13,7 +13,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.*;
+import java.net.JarURLConnection;
 import java.util.Comparator;
+import java.util.function.Supplier;
 
 import static burp.api.montoya.ui.editor.EditorOptions.READ_ONLY;
 
@@ -187,39 +189,81 @@ public class ProxyTab {
     // 하위 Settings 탭 구성 (사용자가 하위 탭을 추가할 수 있게)
     private JPanel createSettingsPanel() {
         JPanel settingsPanel = new JPanel(new BorderLayout());
+        settingsPanel.setBorder(BorderFactory.createEmptyBorder(10, 7, 10, 7));
+        JPanel mergePanel = new JPanel();
+        mergePanel.setLayout(new BoxLayout(mergePanel, BoxLayout.Y_AXIS));
 
-        JButton addTabButton = new JButton("새로운 탭 추가");
-        JTextField tabNameField = new JTextField("새 탭 이름 입력", 15);
-        JTextField filterListenerInterfaceField =  new JTextField("127.0.0.1:8080", 15);
+        Supplier<JPanel> createSeparatorPanel = () -> {
+            JPanel panel = new JPanel();
+            panel.setLayout(new BorderLayout());
+            JSeparator separator = new JSeparator(JSeparator.HORIZONTAL);
+            panel.add(separator, BorderLayout.CENTER);
+            panel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0)); // 위/아래 여백
+            return panel;
+        };
 
-        JPanel topPanel = new JPanel();
-        topPanel.add(tabNameField);
-        topPanel.add(filterListenerInterfaceField);
-        topPanel.add(addTabButton);
+        Supplier<JPanel> createNewProxyFormPanel = () -> {
+            JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            JLabel titleLabel = new JLabel("Proxy Listener Setting");
+            titleLabel.setFont(new Font(titleLabel.getFont().getName(), Font.BOLD, 18));
+            titleLabel.setForeground(Color.WHITE);
+            titlePanel.add(titleLabel);
 
-        settingsPanel.add(topPanel, BorderLayout.NORTH);
+            JPanel formPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            JButton addTabButton = new JButton("새로운 탭 추가");
+            JTextField tabNameField = new JTextField("새 탭 이름 입력", 15);
+            JTextField filterListenerInterfaceField =  new JTextField("127.0.0.1:8080", 15);
+            formPanel.add(tabNameField);
+            formPanel.add(filterListenerInterfaceField);
+            formPanel.add(addTabButton);
 
-        addTabButton.addActionListener(e -> {
-            String newTabName = tabNameField.getText().trim();
-            String filterListenerInterface = filterListenerInterfaceField.getText().trim();
-            if (newTabName.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "탭 이름을 입력하세요.");
-                return;
-            }
-            if (filterListenerInterface.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "리스너 인터페이스를 입력하세요. ex: 127.0.0.1:8080");
-                return;
-            }
+            JPanel topPanel = new JPanel();
+            topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
 
-            JPanel proxyHistoryPanel = createProxyHistoryPanel(filterListenerInterface);
+            topPanel.add(titlePanel);
+            topPanel.add(formPanel);
 
-            // 사용자 정의 하위 탭 추가
-            upperTabs.addTab(newTabName, proxyHistoryPanel);
-            // X 버튼 추가
-            upperTabs.setTabComponentAt(upperTabs.getTabCount() - 1, new ClosableTabComponent(upperTabs, newTabName));
-            // 바로 새 탭으로 이동
-            upperTabs.setSelectedComponent(proxyHistoryPanel);
-        });
+            addTabButton.addActionListener(e -> {
+                String newTabName = tabNameField.getText().trim();
+                String filterListenerInterface = filterListenerInterfaceField.getText().trim();
+                if (newTabName.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "탭 이름을 입력하세요.");
+                    return;
+                }
+                if (filterListenerInterface.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "리스너 인터페이스를 입력하세요. ex: 127.0.0.1:8080");
+                    return;
+                }
+
+                JPanel proxyHistoryPanel = createProxyHistoryPanel(filterListenerInterface);
+
+                // 사용자 정의 하위 탭 추가
+                upperTabs.addTab(newTabName, proxyHistoryPanel);
+                // X 버튼 추가
+                upperTabs.setTabComponentAt(upperTabs.getTabCount() - 1, new ClosableTabComponent(upperTabs, newTabName));
+                // 바로 새 탭으로 이동
+                upperTabs.setSelectedComponent(proxyHistoryPanel);
+            });
+
+            return topPanel;
+        };
+
+        Supplier<JPanel> createCredentialSettingPanel = () -> {
+            JLabel titleLabel = new JLabel("Credential Setting");
+            titleLabel.setFont(new Font(titleLabel.getFont().getName(), Font.BOLD, 18));
+            titleLabel.setForeground(Color.WHITE);
+
+            JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            topPanel.add(titleLabel);
+
+            return topPanel;
+        };
+
+        mergePanel.add(createNewProxyFormPanel.get());
+        mergePanel.add(createSeparatorPanel.get());
+        mergePanel.add(createCredentialSettingPanel.get());
+
+        settingsPanel.add(mergePanel, BorderLayout.NORTH);
 
         return settingsPanel;
     }
