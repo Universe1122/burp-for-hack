@@ -14,6 +14,7 @@ public class Main implements BurpExtension
     public void initialize(MontoyaApi api)
     {
         api.extension().setName("Hello world extension");
+        MontoyaApiProvider.initialize(api);
 
         ProxyTableModel proxyTableModel = new ProxyTableModel();
         ProxyTab proxyTab = new ProxyTab(api, proxyTableModel);
