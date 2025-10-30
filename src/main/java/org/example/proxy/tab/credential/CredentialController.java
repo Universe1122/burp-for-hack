@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.util.Objects;
+import java.util.Optional;
 
 public class CredentialController {
     private final JTabbedPane credentialTabs;
@@ -46,6 +47,9 @@ public class CredentialController {
     public JPanel createFormPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
+        JTable table = new JTable(this.credentialTableModel);
+        JScrollPane scrollPane = new JScrollPane(table);
+
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // 여백
@@ -59,68 +63,95 @@ public class CredentialController {
         buttonPanel.add(delete);
 
         addWatcher.addActionListener(e -> {
-            JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(panel), "Add Watcher", true);
-            dialog.setSize(300, 140);
-            dialog.setLocationRelativeTo(panel);
-
-            JPanel contentPanel = new JPanel();
-            contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-            contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-            JPanel typePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            JLabel typeLabel = new JLabel("Type:");
-            String[] types = {CredentialEntry.Type.COOKIE.name(), CredentialEntry.Type.HEADER.name()};
-            JComboBox<String> typeCombo = new JComboBox<>(types);
-            typePanel.add(typeLabel);
-            typePanel.add(typeCombo);
-
-            JPanel namePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            JLabel nameLabel = new JLabel("Name:");
-            JTextField nameField = new JTextField(15);
-            namePanel.add(nameLabel);
-            namePanel.add(nameField);
-
-            // 패널에 추가
-            contentPanel.add(typePanel);
-            contentPanel.add(namePanel);
-
-            // 버튼
-            JPanel buttonPanelDialog = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-            JButton okButton = new JButton("OK");
-            JButton cancelButton = new JButton("Cancel");
-            buttonPanelDialog.add(okButton);
-            buttonPanelDialog.add(cancelButton);
-
-            okButton.addActionListener(ev -> {
-                String type = typeCombo.getSelectedItem().toString();
-                String name = nameField.getText().trim();
-
-                if(name.isEmpty()) {
-                    return;
-                }
-
-                CredentialEntry credentialEntry = new CredentialEntry(
-                        Objects.equals(type, CredentialEntry.Type.COOKIE.name()) ? CredentialEntry.Type.COOKIE : CredentialEntry.Type.HEADER, name
-                );
-
-                this.credentialTableModel.add(credentialEntry);
-                dialog.dispose();
-            });
-
-            cancelButton.addActionListener(ev -> dialog.dispose());
-
-            dialog.setLayout(new BorderLayout());
-            dialog.add(contentPanel, BorderLayout.CENTER);
-            dialog.add(buttonPanelDialog, BorderLayout.SOUTH);
-            dialog.setVisible(true);
+            createCredentialWatchFormPopup(panel, null, null, null);
         });
 
-        JTable table = new JTable(this.credentialTableModel);
-        JScrollPane scrollPane = new JScrollPane(table);
+        delete.addActionListener(e -> {
+            int selectRow = table.getSelectedRow();
+            if(selectRow != -1) {
+                credentialTableModel.delete(selectRow);
+            }
+        });
+
+        edit.addActionListener(e -> {
+            int selectRow = table.getSelectedRow();
+            if(selectRow == -1) return;;
+
+            CredentialEntry tmpCredentialEntry = this.credentialTableModel.getCredentialEntry(selectRow);
+            this.createCredentialWatchFormPopup(panel, tmpCredentialEntry.getType(), tmpCredentialEntry.getName(), selectRow);
+            this.credentialTableModel.fireTableDataChanged();
+        });
 
         panel.add(buttonPanel, BorderLayout.WEST);
         panel.add(scrollPane, BorderLayout.CENTER);
 
         return panel;
+    }
+
+    private void createCredentialWatchFormPopup(JPanel parentPanel, CredentialEntry.Type type, String name, Integer index) {
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(parentPanel), "Add Watcher", true);
+        dialog.setSize(300, 140);
+        dialog.setLocationRelativeTo(parentPanel);
+
+        JPanel contentPanel = new JPanel();
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JPanel typePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JLabel typeLabel = new JLabel("Type:");
+        String[] types = {CredentialEntry.Type.COOKIE.name(), CredentialEntry.Type.HEADER.name()};
+        JComboBox<String> typeCombo = new JComboBox<>(types);
+        if (type != null) {
+            typeCombo.setSelectedItem(type.name());
+        }
+        typePanel.add(typeLabel);
+        typePanel.add(typeCombo);
+
+        JPanel namePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JLabel nameLabel = new JLabel("Name:");
+        JTextField nameField = name == null ? new JTextField(15) : new JTextField(name,15);
+        namePanel.add(nameLabel);
+        namePanel.add(nameField);
+
+        // 패널에 추가
+        contentPanel.add(typePanel);
+        contentPanel.add(namePanel);
+
+        // 버튼
+        JPanel buttonPanelDialog = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton okButton = new JButton("OK");
+        JButton cancelButton = new JButton("Cancel");
+        buttonPanelDialog.add(okButton);
+        buttonPanelDialog.add(cancelButton);
+
+        okButton.addActionListener(ev -> {
+            String newType = typeCombo.getSelectedItem().toString();
+            String newName = nameField.getText().trim();
+
+            if (newName.isEmpty()) {
+                return;
+            }
+
+            CredentialEntry credentialEntry = new CredentialEntry(
+                    Objects.equals(newType, CredentialEntry.Type.COOKIE.name()) ? CredentialEntry.Type.COOKIE : CredentialEntry.Type.HEADER, newName
+            );
+
+            if (index == null) {
+                this.credentialTableModel.add(credentialEntry);
+            }
+            else {
+                CredentialEntry tmpCredentialEntry = this.credentialTableModel.getCredentialEntry(index);
+                tmpCredentialEntry.setName(newName);
+                tmpCredentialEntry.setType(newType);
+            }
+            dialog.dispose();
+        });
+
+        cancelButton.addActionListener(ev -> dialog.dispose());
+
+        dialog.setLayout(new BorderLayout());
+        dialog.add(contentPanel, BorderLayout.CENTER);
+        dialog.add(buttonPanelDialog, BorderLayout.SOUTH);
+        dialog.setVisible(true);
     }
 }

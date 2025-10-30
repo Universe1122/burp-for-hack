@@ -1,6 +1,7 @@
 package org.example.proxy.tab.credential;
 
 import java.util.Date;
+import java.util.Objects;
 
 public class CredentialEntry {
     public enum Type {
@@ -22,6 +23,9 @@ public class CredentialEntry {
 
     public void setType(Type type) {
         this.type = type;
+    }
+    public void setType(String type) {
+        this.type = Objects.equals(type, CredentialEntry.Type.COOKIE.name()) ? CredentialEntry.Type.COOKIE : CredentialEntry.Type.HEADER;
     }
     public void setName(String name) {
         this.name = name;

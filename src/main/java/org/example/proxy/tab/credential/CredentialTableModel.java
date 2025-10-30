@@ -44,6 +44,10 @@ public class CredentialTableModel extends AbstractTableModel {
         fireTableRowsInserted(credentialEntries.size() - 1, credentialEntries.size() - 1);
     }
 
+    public synchronized void delete(int index) {
+        this.credentialEntries.remove(index);
+    }
+
     public synchronized CredentialEntry getCredentialEntry(int rowIndex) {
         return credentialEntries.get(rowIndex);
     }
