@@ -73,9 +73,7 @@ public class ProxyPacketEntry {
         String body = new String(this.httpResponse.body().getBytes(), StandardCharsets.UTF_8);
         Matcher matcher = Pattern.compile("<title>(.+?)</title>", Pattern.CASE_INSENSITIVE).matcher(body);
         if (matcher.find()) {
-            String result = matcher.group(1).trim();
-            MontoyaApiProvider.get().logging().logToOutput(result);
-            return result;
+            return matcher.group(1).trim();
         }
 
         return "";
