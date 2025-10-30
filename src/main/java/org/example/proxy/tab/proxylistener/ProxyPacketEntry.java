@@ -1,4 +1,4 @@
-package org.example.proxy;
+package org.example.proxy.tab.proxylistener;
 
 import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.MimeType;

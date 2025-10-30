@@ -1,4 +1,4 @@
-package org.example.proxy.ui.tab;
+package org.example.proxy.tab.credential;
 
 public enum CredentialTableColumns {
     WATCHER_TYPE("Watcher Type"),

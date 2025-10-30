@@ -1,4 +1,4 @@
-package org.example.proxy.ui.tab;
+package org.example.proxy.tab.credential;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;

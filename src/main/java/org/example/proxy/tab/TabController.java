@@ -1,20 +1,20 @@
-package org.example.proxy.ui.tab;
+package org.example.proxy.tab;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class CustomTabController extends JPanel {
+public class TabController extends JPanel {
     private final JTabbedPane tabbedPane;
     private final JTabbedPane pairedTabbedPane; // optional paired pane to sync/close
     private final JLabel titleLabel;
 
 
-    public CustomTabController(JTabbedPane _tabbedPane, String title) {
+    public TabController(JTabbedPane _tabbedPane, String title) {
         this(_tabbedPane, null, title);
     }
 
-    public CustomTabController(JTabbedPane _tabbedPane, JTabbedPane pairedPane, String title) {
+    public TabController(JTabbedPane _tabbedPane, JTabbedPane pairedPane, String title) {
         super(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
         this.tabbedPane = _tabbedPane;

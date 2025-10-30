@@ -1,4 +1,4 @@
-package org.example.proxy.ui.tab;
+package org.example.proxy.tab.proxylistener;
 
 public enum ProxyTableColumns {
     INDEX("#"),
