@@ -4,6 +4,7 @@ import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.proxy.http.InterceptedResponse;
+import org.example.proxy.tab.credential.CredentialWatcherService;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.*;
@@ -12,6 +13,7 @@ import java.util.*;
 public class ProxyTableModel extends AbstractTableModel {
 
     private final List<ProxyPacketEntry> log = new ArrayList<>();
+    private CredentialWatcherService credentialWatcherService;
 
     private static final String[] COLUMNS = Arrays.stream(ProxyTableColumns.values())
             .map(ProxyTableColumns::getDisplayName)
@@ -56,11 +58,20 @@ public class ProxyTableModel extends AbstractTableModel {
     }
 
     public synchronized void add(HttpRequestResponse message, String listenerInterface, InterceptedResponse interceptedResponse) {
-        log.add(new ProxyPacketEntry(message, listenerInterface, interceptedResponse));
+        ProxyPacketEntry newProxyPacketEntry = new ProxyPacketEntry(message, listenerInterface, interceptedResponse);
+        log.add(newProxyPacketEntry);
         fireTableRowsInserted(log.size() - 1, log.size() - 1);
+
+        if (this.credentialWatcherService != null) {
+            this.credentialWatcherService.handleProxyEntry(newProxyPacketEntry);
+        }
     }
 
     public synchronized ProxyPacketEntry get(int rowIndex) {
         return (ProxyPacketEntry) log.get(rowIndex);
+    }
+
+    public void setCredentialWatcherService(CredentialWatcherService credentialWatcherService) {
+        this.credentialWatcherService = credentialWatcherService;
     }
 }

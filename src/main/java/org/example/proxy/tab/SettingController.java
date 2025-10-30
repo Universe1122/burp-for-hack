@@ -1,6 +1,7 @@
 package org.example.proxy.tab;
 
 import org.example.proxy.tab.credential.CredentialController;
+import org.example.proxy.tab.credential.CredentialWatcherService;
 import org.example.proxy.tab.proxyhistory.ProxyHistoryController;
 import org.example.proxy.tab.proxylistener.ProxyListenerController;
 import org.example.proxy.tab.credential.CredentialTableModel;
@@ -18,6 +19,7 @@ public class SettingController {
     private final ProxyHistoryController proxyHistoryController;
     private final ProxyListenerController proxyListenerController;
     private final CredentialController credentialController;
+    private final CredentialWatcherService credentialWatcherService;
 
     public SettingController(ProxyTableModel globalTableModel) {
         // 패킷 히스토리 관리
@@ -26,10 +28,13 @@ public class SettingController {
         this.upperTabs = new JTabbedPane();
         this.credentialTabs = new JTabbedPane();
         this.credentialTableModel = new CredentialTableModel();
+        this.credentialWatcherService = new CredentialWatcherService();
 
         this.proxyHistoryController = new ProxyHistoryController(this.globalTableModel);
-        this.credentialController = new CredentialController(this.credentialTabs, this.credentialTableModel);
+        this.credentialController = new CredentialController(this.credentialTabs, this.credentialTableModel, this.credentialWatcherService);
         this.proxyListenerController = new ProxyListenerController(this.upperTabs, this.credentialTabs, this.proxyHistoryController, this.credentialController);
+
+        this.globalTableModel.setCredentialWatcherService(this.credentialWatcherService);
     }
 
     public Component constructLoggerTab() {

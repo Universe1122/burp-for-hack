@@ -12,10 +12,12 @@ import java.util.Optional;
 public class CredentialController {
     private final JTabbedPane credentialTabs;
     private final CredentialTableModel credentialTableModel;
+    private final CredentialWatcherService credentialWatcherService;
 
-    public CredentialController(JTabbedPane credentialTabs, CredentialTableModel credentialTableModel) {
+    public CredentialController(JTabbedPane credentialTabs, CredentialTableModel credentialTableModel, CredentialWatcherService credentialWatcherService) {
         this.credentialTabs = credentialTabs;
         this.credentialTableModel = credentialTableModel;
+        this.credentialWatcherService = credentialWatcherService;
     }
 
     public JPanel createPanel() {
@@ -69,7 +71,10 @@ public class CredentialController {
         delete.addActionListener(e -> {
             int selectRow = table.getSelectedRow();
             if(selectRow != -1) {
-                credentialTableModel.delete(selectRow);
+                CredentialEntry tmpCredentialEntry = this.credentialTableModel.getCredentialEntry(selectRow);
+
+                this.credentialTableModel.delete(selectRow);
+                this.credentialWatcherService.remove(tmpCredentialEntry);
             }
         });
 
@@ -138,11 +143,16 @@ public class CredentialController {
 
             if (index == null) {
                 this.credentialTableModel.add(credentialEntry);
+                this.credentialWatcherService.add(credentialEntry);
             }
             else {
                 CredentialEntry tmpCredentialEntry = this.credentialTableModel.getCredentialEntry(index);
                 tmpCredentialEntry.setName(newName);
                 tmpCredentialEntry.setType(newType);
+                this.credentialWatcherService.update(
+                        new CredentialEntry(type, name),
+                        tmpCredentialEntry
+                );
             }
             dialog.dispose();
         });
