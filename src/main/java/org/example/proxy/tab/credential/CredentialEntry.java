@@ -32,6 +32,7 @@ public class CredentialEntry {
     }
     public void setCurrentValue(String currentValue) {
         this.current_value = currentValue;
+        this.setDate();
     }
     public void setDate() {
         this.date = new Date();
