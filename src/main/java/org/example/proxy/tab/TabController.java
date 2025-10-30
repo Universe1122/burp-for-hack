@@ -9,11 +9,6 @@ public class TabController extends JPanel {
     private final JTabbedPane pairedTabbedPane; // optional paired pane to sync/close
     private final JLabel titleLabel;
 
-
-    public TabController(JTabbedPane _tabbedPane, String title) {
-        this(_tabbedPane, null, title);
-    }
-
     public TabController(JTabbedPane _tabbedPane, JTabbedPane pairedPane, String title) {
         super(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
@@ -45,14 +40,14 @@ public class TabController extends JPanel {
             }
         });
 
-        this.titleLabel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
-                    startEditingTitle();
-                }
-            }
-        });
+//        this.titleLabel.addMouseListener(new MouseAdapter() {
+//            @Override
+//            public void mouseClicked(MouseEvent e) {
+//                if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
+//                    startEditingTitle();
+//                }
+//            }
+//        });
 
         closeButton.addActionListener(e -> {
             int index = this.tabbedPane.indexOfTabComponent(this);
