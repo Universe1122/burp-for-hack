@@ -1,4 +1,4 @@
-package org.example;
+package org.example.global;
 
 import burp.api.montoya.MontoyaApi;
 

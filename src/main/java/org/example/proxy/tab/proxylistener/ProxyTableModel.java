@@ -14,10 +14,15 @@ public class ProxyTableModel extends AbstractTableModel {
 
     private final List<ProxyPacketEntry> log = new ArrayList<>();
     private CredentialWatcherService credentialWatcherService;
+    private final String filterListenerInterface;
 
     private static final String[] COLUMNS = Arrays.stream(ProxyTableColumns.values())
             .map(ProxyTableColumns::getDisplayName)
             .toArray(String[]::new);
+
+    public ProxyTableModel(String filterListenerInterface) {
+        this.filterListenerInterface = filterListenerInterface;
+    }
 
     @Override
     public int getRowCount() {
@@ -73,5 +78,9 @@ public class ProxyTableModel extends AbstractTableModel {
 
     public void setCredentialWatcherService(CredentialWatcherService credentialWatcherService) {
         this.credentialWatcherService = credentialWatcherService;
+    }
+
+    public String getFilterListenerInterface() {
+        return this.filterListenerInterface;
     }
 }

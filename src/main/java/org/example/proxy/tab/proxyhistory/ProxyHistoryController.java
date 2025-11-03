@@ -1,12 +1,14 @@
 package org.example.proxy.tab.proxyhistory;
 
-import burp.api.montoya.MontoyaApi;
 import burp.api.montoya.core.HighlightColor;
 import burp.api.montoya.ui.UserInterface;
 import burp.api.montoya.ui.editor.HttpRequestEditor;
 import burp.api.montoya.ui.editor.HttpResponseEditor;
-import org.example.MontoyaApiProvider;
+import org.example.global.ModelProvider;
+import org.example.global.MontoyaApiProvider;
 import org.example.proxy.contextmenu.ProxyEntryContextMenu;
+import org.example.proxy.handler.ProxyResponseHandler;
+import org.example.proxy.tab.proxylistener.ProxyListenerController;
 import org.example.proxy.tab.proxylistener.ProxyPacketEntry;
 import org.example.proxy.tab.proxylistener.ProxyTableColumns;
 import org.example.proxy.tab.proxylistener.ProxyTableModel;
@@ -25,12 +27,16 @@ import static burp.api.montoya.ui.editor.EditorOptions.READ_ONLY;
 
 public class ProxyHistoryController {
     private final ProxyTableModel globalTableModel;
+    private final String filterListenerInterface;
 
-    public ProxyHistoryController(ProxyTableModel globalTableModel) {
-        this.globalTableModel = globalTableModel;
+    public ProxyHistoryController(String filterListenerInterface) {
+        this.globalTableModel = new ProxyTableModel(filterListenerInterface);
+        this.filterListenerInterface = filterListenerInterface;
+
+        ModelProvider.addProxyTableModel(this.globalTableModel);
     }
 
-    public JPanel createPanel(String filterListenerInterface) {
+    public JPanel createPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 //        ProxyTableContextMenu proxyTableContextMenu = new ProxyTableContextMenu(this.api);
         JTable table = new JTable(this.globalTableModel);

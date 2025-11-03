@@ -10,14 +10,10 @@ import java.awt.*;
 public class ProxyListenerController {
     private final JTabbedPane upperTabs;
     private final JTabbedPane credentialTabs;
-    private final ProxyHistoryController proxyHistoryController;
-    private final CredentialController credentialController;
 
-    public ProxyListenerController(JTabbedPane upperTabs, JTabbedPane credentialTabs, ProxyHistoryController proxyHistoryController, CredentialController credentialController) {
+    public ProxyListenerController(JTabbedPane upperTabs, JTabbedPane credentialTabs) {
         this.upperTabs = upperTabs;
         this.credentialTabs = credentialTabs;
-        this.proxyHistoryController = proxyHistoryController;
-        this.credentialController = credentialController;
     }
 
     public JPanel createPanel() {
@@ -44,6 +40,10 @@ public class ProxyListenerController {
         addTabButton.addActionListener(e -> {
             String newTabName = tabNameField.getText().trim();
             String filterListenerInterface = filterListenerInterfaceField.getText().trim();
+
+            ProxyHistoryController proxyHistoryController = new ProxyHistoryController(filterListenerInterface);
+            CredentialController credentialController = new CredentialController(this.credentialTabs);
+
             if (newTabName.isEmpty()) {
                 JOptionPane.showMessageDialog(null, "탭 이름을 입력하세요.");
                 return;
@@ -53,7 +53,7 @@ public class ProxyListenerController {
                 return;
             }
 
-            JPanel proxyHistoryPanel = this.proxyHistoryController.createPanel(filterListenerInterface);
+            JPanel proxyHistoryPanel = proxyHistoryController.createPanel();
 
             // 사용자 정의 하위 탭 추가
             this.upperTabs.addTab(newTabName, proxyHistoryPanel);
@@ -63,7 +63,7 @@ public class ProxyListenerController {
             this.upperTabs.setSelectedComponent(proxyHistoryPanel);
 
             // credential watcher setting 패널에 새로운 탭 생성
-            this.credentialTabs.addTab(newTabName, this.credentialController.createFormPanel());
+            this.credentialTabs.addTab(newTabName, credentialController.createFormPanel());
         });
 
         return topPanel;

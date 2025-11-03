@@ -1,23 +1,25 @@
 package org.example.proxy.tab.credential;
 
-import org.example.MontoyaApiProvider;
+import org.example.global.ModelProvider;
+import org.example.global.MontoyaApiProvider;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.util.Objects;
-import java.util.Optional;
 
 public class CredentialController {
     private final JTabbedPane credentialTabs;
     private final CredentialTableModel credentialTableModel;
     private final CredentialWatcherService credentialWatcherService;
 
-    public CredentialController(JTabbedPane credentialTabs, CredentialTableModel credentialTableModel, CredentialWatcherService credentialWatcherService) {
+    public CredentialController(JTabbedPane credentialTabs) {
         this.credentialTabs = credentialTabs;
-        this.credentialTableModel = credentialTableModel;
-        this.credentialWatcherService = credentialWatcherService;
+        this.credentialTableModel = new CredentialTableModel();
+        this.credentialWatcherService = new CredentialWatcherService();
+
+        ModelProvider.addCredentialTableModel(this.credentialTableModel);
     }
 
     public JPanel createPanel() {

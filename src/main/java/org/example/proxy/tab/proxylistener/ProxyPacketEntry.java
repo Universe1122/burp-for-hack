@@ -5,7 +5,6 @@ import burp.api.montoya.http.message.MimeType;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.proxy.http.InterceptedResponse;
-import org.example.MontoyaApiProvider;
 
 import java.net.InetAddress;
 import java.net.MalformedURLException;

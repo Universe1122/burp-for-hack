@@ -2,6 +2,7 @@ package org.example;
 
 import burp.api.montoya.BurpExtension;
 import burp.api.montoya.MontoyaApi;
+import org.example.global.MontoyaApiProvider;
 import org.example.menu.CredentialHelper;
 import org.example.proxy.tab.SettingController;
 import org.example.proxy.tab.proxylistener.ProxyTableModel;
@@ -17,11 +18,10 @@ public class Main implements BurpExtension
         api.extension().setName("burp for hack");
         MontoyaApiProvider.initialize(api);
 
-        ProxyTableModel proxyTableModel = new ProxyTableModel();
-        SettingController settingController = new SettingController(proxyTableModel);
+        SettingController settingController = new SettingController();
         api.userInterface().registerSuiteTab("Custom logger", settingController.constructLoggerTab());
-        api.proxy().registerResponseHandler(new ProxyResponseHandler(api, proxyTableModel));
 
+        api.proxy().registerResponseHandler(new ProxyResponseHandler());
         api.userInterface().registerContextMenuItemsProvider(new CredentialHelper());
     }
 }
