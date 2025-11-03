@@ -1,7 +1,7 @@
 package org.example.proxy.tab.credential;
 
 import org.example.global.ModelProvider;
-import org.example.global.MontoyaApiProvider;
+import org.example.proxy.tab.proxylistener.ProxyTableModel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,6 +23,10 @@ public class CredentialController {
         this.credentialWatcherService = new CredentialWatcherService();
 
         ModelProvider.addCredentialTableModel(this.credentialTableModel);
+
+        // Credential Controller의 initialize 함수가 호출된 시점에는 ModelProvider의 ProxyTableModel의 마지막 값이랑 credentialTableModel 랑 동일한 싱크일 것이라고 판단
+        ProxyTableModel tmpProxyTableModel = ModelProvider.getProxyTableModel(ModelProvider.getProxyTableModels().size() - 1);
+        tmpProxyTableModel.setCredentialWatcherService(this.credentialWatcherService);
     }
 
     public JPanel createPanel() {

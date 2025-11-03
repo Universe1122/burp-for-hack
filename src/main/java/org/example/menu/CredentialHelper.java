@@ -58,13 +58,13 @@ public class CredentialHelper implements ContextMenuItemsProvider {
 
                             for (CookieEntry cookieEntry: cookieEntries) {
                                 if(Objects.equals(cookieEntry.getName(), credentialEntry.getName())) {
-                                    cookieEntry.setValue(cookieEntry.getValue());
+                                    cookieEntry.setValue(credentialEntry.getCurrentValue());
                                 }
 
-                                cookieToString.append(cookieEntry);
+                                cookieToString.append(cookieEntry.toString());
                             }
 
-                            httpRequest = httpRequestResponse.request().withHeader("Cookie", String.valueOf(cookieToString));
+                            httpRequest = httpRequestResponse.request().withHeader("Cookie", cookieToString.toString());
                             messageEditorHttpRequestResponse.get().setRequest(httpRequest);
                         }
                     }
