@@ -1,8 +1,12 @@
 package org.example.proxy.tab.credential;
 
+import burp.api.montoya.http.message.Cookie;
 import burp.api.montoya.http.message.requests.HttpRequest;
+import org.example.proxy.tab.proxylistener.CookieEntry;
 import org.example.proxy.tab.proxylistener.ProxyPacketEntry;
 
+import java.lang.reflect.Proxy;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.*;
 
@@ -46,21 +50,14 @@ public class CredentialWatcherService {
                     credentialEntry.setCurrentValue(value);
                 }
                 case COOKIE -> {
-                    String value = httpRequest.headerValue("Cookie");
-                    String[] cookies = value.split(";");
+                    List<CookieEntry> cookieEntries = ProxyPacketEntry.parseCookies(httpRequest);
 
-                    for (String cookie: cookies) {
-                        cookie = cookie.trim();
-                        String[] cookieInfo = cookie.split("=", 2);
-
-                        String cookieName = cookieInfo[0].trim();
-                        String cookieValue = cookieInfo[1].trim();
-
-                        if (Objects.equals(cookieName, credentialEntry.getName()) &&
-                            !Objects.equals(cookieValue, "") &&
-                            !Objects.equals(cookieValue, credentialEntry.getCurrentValue())
+                    for (CookieEntry cookieEntry: cookieEntries) {
+                        if (Objects.equals(cookieEntry.getName(), credentialEntry.getName()) &&
+                                !Objects.equals(cookieEntry.getValue(), "") &&
+                                !Objects.equals(cookieEntry.getValue(), credentialEntry.getCurrentValue())
                         ) {
-                            credentialEntry.setCurrentValue(cookieValue);
+                            credentialEntry.setCurrentValue(cookieEntry.getValue());
                             break;
                         }
                     }

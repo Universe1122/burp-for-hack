@@ -25,8 +25,6 @@ public class ProxyResponseHandler implements burp.api.montoya.proxy.http.ProxyRe
     @Override
     public ProxyResponseToBeSentAction handleResponseToBeSent(InterceptedResponse interceptedResponse) {
         ModelProvider.getProxyTableModels().forEach(proxyTableModel -> {
-            MontoyaApiProvider.get().logging().logToOutput(proxyTableModel.getFilterListenerInterface());
-
             if(Objects.equals(proxyTableModel.getFilterListenerInterface(), interceptedResponse.listenerInterface())) {
                 proxyTableModel.add(
                     HttpRequestResponse.httpRequestResponse(
@@ -38,7 +36,6 @@ public class ProxyResponseHandler implements burp.api.montoya.proxy.http.ProxyRe
                 );
             }
         });
-        MontoyaApiProvider.get().logging().logToOutput("\n\n");
         return ProxyResponseToBeSentAction.continueWith(interceptedResponse);
     }
 }

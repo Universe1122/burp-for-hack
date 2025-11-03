@@ -63,7 +63,7 @@ public class ProxyListenerController {
             this.upperTabs.setSelectedComponent(proxyHistoryPanel);
 
             // credential watcher setting 패널에 새로운 탭 생성
-            this.credentialTabs.addTab(newTabName, credentialController.createFormPanel());
+            this.credentialTabs.addTab(newTabName, credentialController.createFormPanel(filterListenerInterface));
         });
 
         return topPanel;

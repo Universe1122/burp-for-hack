@@ -1,11 +1,7 @@
 package org.example.proxy.tab;
 
 import org.example.proxy.tab.credential.CredentialController;
-import org.example.proxy.tab.credential.CredentialWatcherService;
-import org.example.proxy.tab.proxyhistory.ProxyHistoryController;
 import org.example.proxy.tab.proxylistener.ProxyListenerController;
-import org.example.proxy.tab.credential.CredentialTableModel;
-import org.example.proxy.tab.proxylistener.ProxyTableModel;
 
 import javax.swing.*;
 import java.awt.*;

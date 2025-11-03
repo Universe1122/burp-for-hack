@@ -11,12 +11,15 @@ import java.util.Objects;
 
 public class CredentialController {
     private final JTabbedPane credentialTabs;
-    private final CredentialTableModel credentialTableModel;
-    private final CredentialWatcherService credentialWatcherService;
+    private CredentialTableModel credentialTableModel;
+    private CredentialWatcherService credentialWatcherService;
 
     public CredentialController(JTabbedPane credentialTabs) {
         this.credentialTabs = credentialTabs;
-        this.credentialTableModel = new CredentialTableModel();
+    }
+
+    private void initialize(String filterListenerInterface) {
+        this.credentialTableModel = new CredentialTableModel(filterListenerInterface);
         this.credentialWatcherService = new CredentialWatcherService();
 
         ModelProvider.addCredentialTableModel(this.credentialTableModel);
@@ -34,9 +37,7 @@ public class CredentialController {
 
         this.credentialTabs.addContainerListener(new ContainerListener() {
             @Override
-            public void componentAdded(ContainerEvent e) {
-                MontoyaApiProvider.get().logging().logToOutput("add tab");
-            }
+            public void componentAdded(ContainerEvent e) {}
 
             @Override
             public void componentRemoved(ContainerEvent e) {}
@@ -48,7 +49,9 @@ public class CredentialController {
         return topPanel;
     }
 
-    public JPanel createFormPanel() {
+    public JPanel createFormPanel(String filterListenerInterface) {
+        this.initialize(filterListenerInterface);
+
         JPanel panel = new JPanel(new BorderLayout());
 
         JTable table = new JTable(this.credentialTableModel);
@@ -67,7 +70,7 @@ public class CredentialController {
         buttonPanel.add(delete);
 
         addWatcher.addActionListener(e -> {
-            createCredentialWatchFormPopup(panel, null, null, null);
+            this.createCredentialWatchFormPopup(panel, null, null, null);
         });
 
         delete.addActionListener(e -> {

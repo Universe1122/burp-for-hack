@@ -12,6 +12,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -142,5 +144,24 @@ public class ProxyPacketEntry {
 
     public String getMimeType() {
         return mimeType;
+    }
+
+    public static List<CookieEntry> parseCookies(HttpRequest httpRequest) {
+        List<CookieEntry> result = new ArrayList<>();
+
+        String value = httpRequest.headerValue("Cookie");
+        String[] cookies = value.split(";");
+
+        for (String cookie: cookies) {
+            cookie = cookie.trim();
+            String[] cookieInfo = cookie.split("=", 2);
+
+            String cookieName = cookieInfo[0].trim();
+            String cookieValue = cookieInfo[1].trim();
+
+            result.add(new CookieEntry(cookieName, cookieValue));
+        }
+
+        return result;
     }
 }

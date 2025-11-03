@@ -6,10 +6,15 @@ import java.util.Arrays;
 import java.util.List;
 
 public class CredentialTableModel extends AbstractTableModel {
+    private final String filterListenerInterface;
     private final List<CredentialEntry> credentialEntries = new ArrayList<>();
     private static final String[] COLUMNS = Arrays.stream(CredentialTableColumns.values())
             .map(CredentialTableColumns::getDisplayName)
             .toArray(String[]::new);
+
+    public CredentialTableModel(String filterListenerInterface) {
+        this.filterListenerInterface = filterListenerInterface;
+    }
 
     @Override
     public int getRowCount() {
@@ -50,5 +55,13 @@ public class CredentialTableModel extends AbstractTableModel {
 
     public synchronized CredentialEntry getCredentialEntry(int rowIndex) {
         return credentialEntries.get(rowIndex);
+    }
+
+    public List<CredentialEntry> getCredentialEntries() {
+        return this.credentialEntries;
+    }
+
+    public String getFilterListenerInterface() {
+        return this.filterListenerInterface;
     }
 }
