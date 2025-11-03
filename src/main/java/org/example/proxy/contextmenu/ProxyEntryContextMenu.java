@@ -1,8 +1,8 @@
-package org.example.proxy.ui.menu;
+package org.example.proxy.contextmenu;
 
 import burp.api.montoya.MontoyaApi;
 import burp.api.montoya.core.HighlightColor;
-import org.example.proxy.ProxyPacketEntry;
+import org.example.proxy.tab.proxylistener.ProxyPacketEntry;
 
 import javax.swing.*;
 import java.awt.*;

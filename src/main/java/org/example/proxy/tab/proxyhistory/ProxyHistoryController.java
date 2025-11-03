@@ -1,47 +1,36 @@
-package org.example.proxy.ui.tab;
+package org.example.proxy.tab.proxyhistory;
 
 import burp.api.montoya.MontoyaApi;
 import burp.api.montoya.core.HighlightColor;
 import burp.api.montoya.ui.UserInterface;
 import burp.api.montoya.ui.editor.HttpRequestEditor;
 import burp.api.montoya.ui.editor.HttpResponseEditor;
-import org.example.proxy.ProxyPacketEntry;
-import org.example.proxy.ui.menu.ProxyEntryContextMenu;
+import org.example.MontoyaApiProvider;
+import org.example.proxy.contextmenu.ProxyEntryContextMenu;
+import org.example.proxy.tab.proxylistener.ProxyPacketEntry;
+import org.example.proxy.tab.proxylistener.ProxyTableColumns;
+import org.example.proxy.tab.proxylistener.ProxyTableModel;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Comparator;
 
 import static burp.api.montoya.ui.editor.EditorOptions.READ_ONLY;
 
-public class ProxyTab {
-    private final MontoyaApi api;
-    private final JTabbedPane upperTabs;  // 상위 탭 (Proxy History, Settings 등)
+public class ProxyHistoryController {
     private final ProxyTableModel globalTableModel;
 
-    public ProxyTab(MontoyaApi api, ProxyTableModel globalTableModel) {
-        this.api = api;
-        // 패킷 히스토리 관리
+    public ProxyHistoryController(ProxyTableModel globalTableModel) {
         this.globalTableModel = globalTableModel;
-        // 하위 탭 관리
-        this.upperTabs = new JTabbedPane();
     }
 
-    public Component constructLoggerTab() {
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.add(upperTabs, BorderLayout.CENTER);
-
-        JPanel settingsPanel = createSettingsPanel();
-        upperTabs.addTab("Settings", settingsPanel);
-
-        return mainPanel;
-    }
-
-    // Proxy History UI 구성
-    private JPanel createProxyHistoryPanel(String filterListenerInterface) {
+    public JPanel createPanel(String filterListenerInterface) {
         JPanel panel = new JPanel(new BorderLayout());
 //        ProxyTableContextMenu proxyTableContextMenu = new ProxyTableContextMenu(this.api);
         JTable table = new JTable(this.globalTableModel);
@@ -61,8 +50,8 @@ public class ProxyTab {
         sorter.setMaxSortKeys(1);
         sorter.setSortsOnUpdates(true);
         sorter.setComparator(0, Comparator.comparingInt(o -> (Integer) o)); // Index 열
-        sorter.setComparator(4, Comparator.comparingInt(o -> parseIntSafe(o))); // Status
-        sorter.setComparator(5, Comparator.comparingInt(o -> parseIntSafe(o))); // Length
+        sorter.setComparator(4, Comparator.comparingInt(o -> this.parseIntSafe(o))); // Status
+        sorter.setComparator(5, Comparator.comparingInt(o -> this.parseIntSafe(o))); // Length
         // 이용자가 지정한 listener interface에 따라 보여줄 패킷 필터링
         sorter.setRowFilter(new RowFilter() {
             @Override
@@ -81,7 +70,7 @@ public class ProxyTab {
         verticalSplit.setTopComponent(scrollPane);
 
         // 하단: Request/Response 뷰어 (좌우 배치)
-        UserInterface ui = api.userInterface();
+        UserInterface ui = MontoyaApiProvider.get().userInterface();
         HttpRequestEditor requestViewer = ui.createHttpRequestEditor(READ_ONLY);
         HttpResponseEditor responseViewer = ui.createHttpResponseEditor(READ_ONLY);
 
@@ -104,7 +93,7 @@ public class ProxyTab {
                     selectedRow = table.convertRowIndexToModel(selectedRow);
                     if (selectedRow < 0) return;
 
-                    ProxyPacketEntry proxyPacketEntry =  globalTableModel.get(selectedRow);
+                    ProxyPacketEntry proxyPacketEntry = this.globalTableModel.get(selectedRow);
                     if  (proxyPacketEntry == null) return;
 
                     requestViewer.setRequest(proxyPacketEntry.getHttpRequest());
@@ -123,7 +112,7 @@ public class ProxyTab {
 
                         ProxyPacketEntry entry = globalTableModel.get(row);
 
-                        ProxyEntryContextMenu.showMenu(api, entry, e.getComponent(), e.getX(), e.getY());
+                        ProxyEntryContextMenu.showMenu(MontoyaApiProvider.get(), entry, e.getComponent(), e.getX(), e.getY());
                     }
                 }
             }
@@ -177,51 +166,11 @@ public class ProxyTab {
                 if (row < 0)  return;
 
                 row = table.convertRowIndexToModel(row);
-                api.repeater().sendToRepeater(globalTableModel.get(row).getHttpRequest());
+                MontoyaApiProvider.get().repeater().sendToRepeater(globalTableModel.get(row).getHttpRequest());
             }
         });
 
         return panel;
-    }
-
-    // 하위 Settings 탭 구성 (사용자가 하위 탭을 추가할 수 있게)
-    private JPanel createSettingsPanel() {
-        JPanel settingsPanel = new JPanel(new BorderLayout());
-
-        JButton addTabButton = new JButton("새로운 탭 추가");
-        JTextField tabNameField = new JTextField("새 탭 이름 입력", 15);
-        JTextField filterListenerInterfaceField =  new JTextField("127.0.0.1:8080", 15);
-
-        JPanel topPanel = new JPanel();
-        topPanel.add(tabNameField);
-        topPanel.add(filterListenerInterfaceField);
-        topPanel.add(addTabButton);
-
-        settingsPanel.add(topPanel, BorderLayout.NORTH);
-
-        addTabButton.addActionListener(e -> {
-            String newTabName = tabNameField.getText().trim();
-            String filterListenerInterface = filterListenerInterfaceField.getText().trim();
-            if (newTabName.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "탭 이름을 입력하세요.");
-                return;
-            }
-            if (filterListenerInterface.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "리스너 인터페이스를 입력하세요. ex: 127.0.0.1:8080");
-                return;
-            }
-
-            JPanel proxyHistoryPanel = createProxyHistoryPanel(filterListenerInterface);
-
-            // 사용자 정의 하위 탭 추가
-            upperTabs.addTab(newTabName, proxyHistoryPanel);
-            // X 버튼 추가
-            upperTabs.setTabComponentAt(upperTabs.getTabCount() - 1, new ClosableTabComponent(upperTabs, newTabName));
-            // 바로 새 탭으로 이동
-            upperTabs.setSelectedComponent(proxyHistoryPanel);
-        });
-
-        return settingsPanel;
     }
 
     private int parseIntSafe(Object value) {
