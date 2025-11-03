@@ -1,5 +1,8 @@
 package org.example.proxy.tab;
 
+import org.example.global.ModelProvider;
+import org.example.global.MontoyaApiProvider;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -59,6 +62,8 @@ public class TabController extends JPanel {
                     int pairedIndex = this.pairedTabbedPane.indexOfTab(title2);
                     if (pairedIndex != -1) {
                         this.pairedTabbedPane.remove(pairedIndex);
+                        ModelProvider.removeProxyTableModel(pairedIndex);
+                        ModelProvider.removeCredentialTableModel(pairedIndex);
                     }
                 }
             }
